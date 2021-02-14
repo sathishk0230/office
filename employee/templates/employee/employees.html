@@ -1,0 +1,20 @@
+{% extends "employee/base.html" %} {% block body %}
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Email</th>
+      <th scope="col">Department</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for e in employees %}
+    <tr>
+      <td>{{e.name}}</td>
+      <td>{{e.email}}</td>
+      <td>{{e.department}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

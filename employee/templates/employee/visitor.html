@@ -1,0 +1,26 @@
+{% extends "employee/base.html" %} {% block body %}
+<a href="{% url 'addv' %}" type="button" class="btn btn-success">
+  Add Visitor
+</a>
+
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Email</th>
+      <th scope="col">Visitee</th>
+      <th scope="col">status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for v in visitors %}
+    <tr>
+      <td><a href="{% url 'updatev' id=v.id %}">{{v.name}}</td>
+      <td>{{v.email}}</td>
+      <td>{{v.visitee}}</td>
+      <td>{{v.get_status_display}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

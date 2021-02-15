@@ -31,3 +31,7 @@ class Visitor(models.Model):
         ('i', 'in building'),
         ('c', 'checked_out')
     ]
+    status = models.CharField(
+        max_length=30,
+        choices=VISITOR_STATUS_CHOICES,
+        default='w')

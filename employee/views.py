@@ -1,27 +1,60 @@
-from django.shortcuts import render
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
 from . import models, serializers
-from .forms import VisitorForm
+from .forms import VisitorForm, EmployeeForm
 from rest_framework import viewsets, permissions
 
 
 def employees(request):
-    employees = models.Employee.objects.all()
-    context = {
-        'employees': employees
-    }
-    return render(request, 'employee/employees.html', context=context)
+    if request.user.is_authenticated:
+        employees = models.Employee.objects.all()
+        context = {
+            'employees': employees
+        }
+        return render(request, 'employee/employees.html', context=context)
+    return redirect('/')
 
 
 def visitors(request):
-    visitors = models.Visitor.objects.all()
-    context = {
-        'visitors': visitors
-    }
-    return render(request, 'employee/visitor.html', context=context)
+    if request.user.is_authenticated:
+        visitors = models.Visitor.objects.all()
+        context = {
+            'visitors': visitors
+        }
+        return render(request, 'employee/visitor.html', context=context)
+    return redirect('/')
 
 
 def addv(request):
+    if request.method == "POST":
+        visitor = models.Visitor()
+        visitor.name = request.POST.get('name', visitor.name)
+        visitor.email = request.POST.get('email', visitor.email)
+        visitor.visitee = models.Employee(
+            request.POST.get('visitee', visitor.visitee))
+        visitor.status = request.POST.get('status', visitor.status)
+        visitor.save()
+        return redirect('visitors')
     form = VisitorForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'employee/add_visitor.html', context=context)
+
+
+def adde(request):
+    if request.method == "POST":
+        employee = models.Employee()
+        employee.name = request.POST.get('name', employee.name)
+        employee.email = request.POST.get('email', employee.email)
+        employee.department = request.POST.get(
+            'department', employee.department)
+        employee.office = models.Office(
+            request.POST.get('office', employee.office))
+        employee.save()
+        return redirect('employees')
+    form = EmployeeForm()
     context = {
         'form': form,
     }
@@ -36,6 +69,14 @@ def updatev(request, id):
         'visitee': visitor.visitee,
         'status': visitor.status,
     })
+    if request.method == "POST":
+        visitor.name = request.POST.get('name', visitor.name)
+        visitor.email = request.POST.get('email', visitor.email)
+        visitor.visitee = models.Employee(
+            request.POST.get('visitee', visitor.visitee))
+        visitor.status = request.POST.get('status', visitor.status)
+        visitor.save()
+        return redirect('visitors')
     context = {
         'form': form,
         'id': id
@@ -63,3 +104,21 @@ class VisitorView(viewsets.ModelViewSet):
     queryset = models.Visitor.objects.all()
     serializer_class = serializers.VisitorSerializers
     permission_classes = (permissions.IsAuthenticated,)
+
+
+def register(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password1']
+            user = authenticate(username=username, password=password)
+            login(request, user)
+            return redirect('index')
+    else:
+        form = UserCreationForm()
+    context = {
+        "form": form
+    }
+    return render(request, 'employee/register.html', context)

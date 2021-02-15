@@ -24,7 +24,7 @@ class Visitor(models.Model):
 
     name = models.CharField(max_length=200)
     email = models.EmailField()
-    visitee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    visitee = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True)
 
     VISITOR_STATUS_CHOICES = [
         ('w', 'waiting for check-in'),
